@@ -23,14 +23,6 @@ class Direction(Enum):
     V = 1
 
 
-"""
-9x9 cells
-8*9 vertical walls
-9*8 horizontal walls
-8*8 vertex
-"""
-
-
 class Board:
     def __init__(self, board_size: int = 9) -> None:
         self.cells: List[List[CellState]] = [[CellState.FREE for col in range(board_size)] for row in range(board_size)]
@@ -43,15 +35,9 @@ class Board:
         self.vertical_borders: List[List[BorderState]] = [
             [BorderState.FREE for col in range(board_size - 1)] for row in range(board_size)
         ]
+        # self.players = [Player((0, board_size // 2)), Player((board_size - 1, board_size // 2))]
 
-    def x(self):
-        print(len(self.horizontal_borders))
-        print(len(self.horizontal_borders[0]))
-
-        print(len(self.vertical_borders))
-        print(len(self.vertical_borders[0]))
-
-    def _can_place_wall(self, loc: Tuple[int, int], direction: Direction) -> bool:
+    def is_valid_wall(self, loc: Tuple[int, int], direction: Direction) -> bool:
         row, col = loc
         if direction == Direction.H:
             matrix = self.horizontal_borders
@@ -64,35 +50,21 @@ class Board:
 
         if row < 0 or row >= row_limit or col < 0 or col >= col_limit:
             return False
-
         if (
             self.vertices[row][col] != VertexState.FREE
             or matrix[row][col] != BorderState.FREE
             or matrix[row + (direction == Direction.V)][col + (direction == Direction.H)] != BorderState.FREE
         ):
             return False
-
-        return True
-        row, col = loc
-        if row < 0 or row >= len(self.vertical_borders) or col < 0 or col >= len(self.vertical_borders[0]):
-            return False
-
-        if (
-            self.vertices[row][col] != VertexState.FREE
-            or self.vertical_borders[row][col] != BorderState.FREE
-            or self.vertical_borders[row + 1][col] != BorderState.FREE
-        ):
-            return False
-
         return True
 
-    def get_possible_wall_placements(self, direction: Direction) -> List[Tuple[int, int]]:
+    def get_valid_walls(self, direction: Direction) -> List[Tuple[int, int]]:
         possible_placements = []
         for row in range(len(self.vertices)):
             for col in range(len(self.vertices[0])):
                 print(row, col)
                 loc = (row, col)
-                if self._can_place_wall(loc, direction):
+                if self.is_valid_wall(loc, direction):
                     possible_placements.append(loc)
         return possible_placements
 
@@ -109,29 +81,3 @@ class Board:
     @classmethod
     def validate_board_size(size: int) -> bool:
         return size % 2 == 1  # and size > 5
-
-    def print_board(self) -> None:
-
-        # for row in range(len(self.cells * 3)):
-        #     for col in range(len(self.cells[0])):
-
-        #   def print_board(self):
-        for i in range(3):
-            # Print cell row with vertical borders
-            cell_row = ""
-            for j in range(3):
-                cell_row += "###"
-                if j < 2:
-                    cell_row += " | " if self.vertical_borders[i][j] == BorderState.OCCUPIED else "   "
-            for _ in range(3):
-                print(cell_row)
-            print()
-            # Print horizontal border row
-            if i < 2:
-                h_border_row = ""
-                for j in range(3):
-                    h_border_row += "---" if self.horizontal_borders[i][j] == BorderState.OCCUPIED else "   "
-                    if j < 2:
-                        h_border_row += " * " if self.vertices[i][j] == VertexState.OCCUPIED else "   "
-                print(h_border_row)
-            print()
