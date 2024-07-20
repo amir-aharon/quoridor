@@ -25,6 +25,7 @@ class Direction(Enum):
 
 class Board:
     def __init__(self, board_size: int = 9) -> None:
+        self.size = board_size
         self.cells: List[List[CellState]] = [[CellState.FREE for col in range(board_size)] for row in range(board_size)]
         self.vertices: List[List[VertexState]] = [
             [VertexState.FREE for col in range(board_size - 1)] for row in range(board_size - 1)
@@ -35,7 +36,6 @@ class Board:
         self.vertical_borders: List[List[BorderState]] = [
             [BorderState.FREE for col in range(board_size - 1)] for row in range(board_size)
         ]
-        # self.players = [Player((0, board_size // 2)), Player((board_size - 1, board_size // 2))]
 
     def is_valid_wall(self, loc: Tuple[int, int], direction: Direction) -> bool:
         row, col = loc

@@ -5,5 +5,5 @@ setup(
     name="quoridor",
     packages=find_packages("."),
     version="1.0.0",
-    install_requires=[],
+    install_requires=["pygame"],
 )
