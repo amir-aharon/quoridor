@@ -1,11 +1,14 @@
+from typing import List, Tuple
 import pygame
 
 from .board import Board, BorderState, VertexState
 from .player import Player
 
+DIRECTIONS = {"h": (0, -1), "j": (1, 0), "k": (-1, 0), "l": (0, 1)}
+
 
 class Display:
-    def __init__(self, board: Board):
+    def __init__(self, board: Board, players: Tuple[Player, Player]):
         pygame.init()
         self.screen = pygame.display.set_mode((900, 900))
         self.board = board
@@ -18,7 +21,8 @@ class Display:
             "player2": (239, 172, 75),
             "wall": (255, 255, 255),
         }
-        self.players = [Player((0, self.board.size // 2)), Player((self.board.size - 1, self.board.size // 2))]
+        self.font = pygame.font.SysFont(None, 30)
+        self.players = players
         self.board_size = self.board.size * self.cell_size + (self.board.size - 1) * self.margin
         self.offset_x = (self.screen.get_width() - self.board_size) // 2
         self.offset_y = (self.screen.get_height() - self.board_size) // 2
@@ -66,7 +70,6 @@ class Display:
         for row in range(self.board.size):
             for col in range(self.board.size - 1):
                 if self.board.vertical_borders[row][col] == BorderState.OCCUPIED:
-                    print(row, col)
                     pygame.draw.rect(
                         self.screen,
                         self.colors["wall"],
@@ -93,8 +96,31 @@ class Display:
                         ),
                     )
 
-    def update_display(self):
+    def display_player_movements(self, player: Player, motions: List[str]):
+        print(motions)
+        for motion in motions:
+            if motion in DIRECTIONS.values():
+                for key in DIRECTIONS.keys():
+                    if DIRECTIONS[key] == motion:
+                        motion = key
+                        break
+                offset = DIRECTIONS[motion]
+                target_row = player.position[0] + offset[0]
+                target_col = player.position[1] + offset[1]
+                if 0 <= target_row < self.board.size and 0 <= target_col < self.board.size:
+                    text = self.font.render(motion, True, self.colors["wall"])
+                    text_rect = text.get_rect(
+                        center=(
+                            self.offset_x + target_col * (self.cell_size + self.margin) + self.cell_size // 2,
+                            self.offset_y + target_row * (self.cell_size + self.margin) + self.cell_size // 2,
+                        )
+                    )
+                    self.screen.blit(text, text_rect)
+        # pygame.display.flip()
+
+    def update_display(self, player, motions):
         self.draw_board()
+        self.display_player_movements(player, motions)
         self.draw_players()
         self.draw_walls()
         self.draw_vertices()

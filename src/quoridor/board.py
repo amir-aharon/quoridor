@@ -37,6 +37,30 @@ class Board:
             [BorderState.FREE for col in range(board_size - 1)] for row in range(board_size)
         ]
 
+    def is_valid_move(self, current_position: Tuple[int, int], new_position: Tuple[int, int]) -> bool:
+        # This function checks if a player in pos "current_position" can move to pos "new_position", based on board bouns and walls
+        # Check if the new position is within the board bounds
+        if new_position[0] < 0 or new_position[0] >= self.size or new_position[1] < 0 or new_position[1] >= self.size:
+            return False
+
+        # Check if the new position is adjacent to the current position
+        if abs(new_position[0] - current_position[0]) + abs(new_position[1] - current_position[1]) != 1:
+            return False
+
+        # Check if there is a wall blocking the path
+        if current_position[0] == new_position[0]:
+            row = current_position[0]
+            col = min(current_position[1], new_position[1])
+            if self.vertical_borders[row][col] == BorderState.OCCUPIED:
+                return False
+        elif current_position[1] == new_position[1]:
+            row = min(current_position[0], new_position[0])
+            col = current_position[1]
+            if self.horizontal_borders[row][col] == BorderState.OCCUPIED:
+                return False
+
+        return True
+
     def is_valid_wall(self, loc: Tuple[int, int], direction: Direction) -> bool:
         row, col = loc
         if direction == Direction.H:
@@ -62,7 +86,6 @@ class Board:
         possible_placements = []
         for row in range(len(self.vertices)):
             for col in range(len(self.vertices[0])):
-                print(row, col)
                 loc = (row, col)
                 if self.is_valid_wall(loc, direction):
                     possible_placements.append(loc)
