@@ -97,7 +97,6 @@ class Display:
                     )
 
     def display_player_movements(self, player: Player, motions: List[str]):
-        print(motions)
         for motion in motions:
             if motion in DIRECTIONS.values():
                 for key in DIRECTIONS.keys():
